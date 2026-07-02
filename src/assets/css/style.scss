@@ -1,0 +1,354 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+
+// ─── Variables ───────────────────────────────────────────────
+$primary-font: "DM Sans", sans-serif;
+$primary-white: #fff;
+$primary-color: #43c3d1;
+$primary-black: #061123;
+$secondary-color: #0284ff;
+$tertiary-color: #2f4858;
+$bg-dark: #080c12;
+$bg-card: #0f1520;
+$bg-card-img: #161d2a;
+
+// ─── Base ────────────────────────────────────────────────────
+body {
+  font-family: $primary-font;
+  font-size: 1em;
+  color: $primary-black;
+  font-weight: 500;
+}
+
+h1 {
+  font-size: 2.5em;
+}
+h2 {
+  font-size: 2em;
+}
+h3 {
+  font-size: 1.3em;
+}
+h4 {
+  font-size: 1em;
+}
+
+a {
+  text-decoration: none;
+  color: $primary-black;
+  &:hover {
+    color: $primary-color;
+  }
+}
+
+ul {
+  padding-left: 0;
+  li {
+    list-style: none;
+  }
+}
+
+// ─── Utilities ───────────────────────────────────────────────
+.primary-text {
+  color: $primary-color;
+}
+.secondary-text {
+  color: $secondary-color;
+}
+.container {
+  max-width: 1540px;
+}
+
+.section-label {
+  font-size: 0.8em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $primary-color;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 1.7em;
+  font-weight: 700;
+}
+
+// ─── Buttons ─────────────────────────────────────────────────
+.btn {
+  &.btn-size {
+    background-color: rgba($primary-black, 0.03);
+    border-color: rgba($primary-black, 0.05);
+    padding: 7px 15px;
+    &.active {
+      border-color: rgba($primary-black, 0.2);
+    }
+    &:hover {
+      border-color: rgba($primary-black, 0.2);
+      color: $primary-black;
+    }
+  }
+
+  &.btn-primary {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    padding: 7px 25px;
+    &:hover {
+      background-color: $primary-black;
+      border-color: $primary-black;
+      color: $primary-white;
+    }
+  }
+
+  &.btn-secondary {
+    background-color: $primary-black;
+    border-color: $primary-black;
+    color: $primary-white;
+    padding: 7px 25px;
+    &:hover {
+      background-color: $primary-color;
+      border-color: $primary-color;
+      color: $primary-white;
+    }
+  }
+}
+
+// ─── Header ──────────────────────────────────────────────────
+header {
+  .navbar-expend-lg {
+    .navbar-nav {
+      .nav-link {
+        padding: 10px 15px;
+        font-weight: 500;
+        font-size: 1.2em;
+        color: $primary-black;
+      }
+    }
+  }
+}
+
+// ─── Footer ──────────────────────────────────────────────────
+footer {
+  margin-top: 20px;
+  background-color: $tertiary-color;
+
+  h3 {
+    color: $primary-white;
+    font-size: 1.5em;
+    font-weight: 700;
+    padding-bottom: 5px;
+  }
+
+  ul {
+    padding-left: 5px;
+    li {
+      padding-top: 5px;
+      a {
+        color: rgba($primary-white, 0.8);
+        font-size: 1.1em;
+        font-weight: 500;
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+  }
+
+  .explore {
+    border-top: 0.5px solid rgba($primary-white, 0.3);
+    border-bottom: 0.5px solid rgba($primary-white, 0.3);
+  }
+}
+
+// ─── Hero Swiper ─────────────────────────────────────────────
+.section-1 {
+  .swiper-slide {
+    width: 100%;
+    height: 750px;
+    @media (max-width: 714px) {
+      height: 400px;
+    }
+    .content {
+      height: 100%;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+  }
+}
+
+// ─── Product Card ────────────────────────────────────────────
+.product-card {
+  background: $bg-card;
+  border: 0.5px solid rgba($primary-white, 0.08);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba($primary-color, 0.4);
+  }
+
+  .image {
+    width: 100%;
+    aspect-ratio: 3.5/4;
+    background: $bg-card-img;
+    overflow: hidden;
+    position: relative;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+      &:hover {
+        transform: scale(1.06);
+      }
+    }
+  }
+
+  .badge-sale,
+  .badge-new {
+    position: absolute;
+    top: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 4px;
+  }
+
+  .badge-sale {
+    left: 10px;
+    background: rgba($primary-white, 0.12);
+    border: 0.5px solid rgba($primary-white, 0.2);
+    color: $primary-white;
+  }
+
+  .badge-new {
+    right: 10px;
+    background: $primary-color;
+    color: $primary-black;
+  }
+
+  .body {
+    padding: 14px;
+  }
+
+  .product-name {
+    font-size: 0.85em;
+    font-weight: 500;
+    color: rgba($primary-white, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 8px;
+  }
+
+  .price {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .price-current {
+    font-size: 1em;
+    font-weight: 700;
+    color: $primary-color;
+  }
+
+  .price-old {
+    font-size: 0.8em;
+    color: rgba($primary-white, 0.3);
+    text-decoration: line-through;
+  }
+}
+
+// ─── Section Dark ────────────────────────────────────────────
+.section-dark {
+  background: $bg-dark;
+
+  .section-label {
+    color: $primary-color;
+  }
+  .section-title {
+    color: $primary-white;
+  }
+  .divider {
+    border-color: rgba($primary-white, 0.08);
+  }
+}
+
+// ─── Product Page Swipers ────────────────────────────────────
+.product-page {
+  .mySwiper,
+  .mySwiper2 {
+    .swiper-slide {
+      height: auto !important;
+      .image {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        border-radius: 10px;
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 10px;
+          &:hover {
+            transform: scale(1.2);
+            transition: 0.3s ease-in-out;
+          }
+        }
+      }
+    }
+  }
+}
+
+.mySwiper2 {
+  position: relative;
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    color: $primary-black;
+    background: rgba($primary-white, 0.8);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    &:hover {
+      background: $primary-white;
+    }
+    &::after {
+      font-size: 20px;
+      font-weight: bold;
+    }
+  }
+
+  .swiper-button-prev {
+    left: 10px;
+  }
+  .swiper-button-next {
+    right: 10px;
+  }
+}
+
+// ─── Sidebar ─────────────────────────────────────────────────
+.sidebar {
+  border-radius: 10px;
+  padding: 20px;
+
+  ul li {
+    border-bottom: 2px solid rgb(201, 198, 198);
+    .nav-link {
+      color: $primary-black;
+      font-size: 1.2em;
+      font-weight: 500;
+      padding: 10px 15px;
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+}
