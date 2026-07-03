@@ -1,4 +1,4 @@
-export const ApiUrl = "http://localhost/ecommerce/backend/public/api";
+export const ApiUrl = "http://192.168.1.4/ecommerce/backend/public/api";
 
 export const AdminToken = () => {
   const data = JSON.parse(localStorage.getItem("admininfo"));

@@ -41,7 +41,6 @@ const Checkout = () => {
       address: data.address,
       city: data.city,
       state: data.state,
-      zip: data.zip,
 
       // order meta
       status: "pending", // "not_paid"
@@ -128,16 +127,12 @@ const Checkout = () => {
               year: "numeric",
             }),
             status: "Pending",
-            paymentMethod:
-              data.payment_method === "cod"
-                ? "Cash on Delivery"
-                : "Credit Card",
+            paymentMethod: "Cash on Delivery",
             name: data.name,
             email: data.email,
             address: data.address,
             city: data.city,
             state: data.state,
-            zip: data.zip,
             items: cartItems,
             total: finalTotal(),
           },
@@ -282,6 +277,36 @@ const Checkout = () => {
           color: #aaa;
           margin-top: 12px;
         }
+
+        /* ── Mobile fix: checkout had no responsive breakpoints at all ── */
+        @media (max-width: 640px) {
+          .cart-table-header { display: none; }
+
+          .cart-item {
+            grid-template-columns: 56px 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            row-gap: 6px;
+            padding: 12px;
+          }
+
+          .cart-item-img { width: 56px; height: 56px; }
+
+          /* image spans all 3 rows on the left */
+          .cart-item > :nth-child(1) { grid-column: 1; grid-row: 1 / 4; }
+          /* title + sku, full width next to image */
+          .cart-item > :nth-child(2) { grid-column: 2 / 4; grid-row: 1; }
+          /* price */
+          .cart-item > :nth-child(3) { grid-column: 2; grid-row: 2; font-size: 0.85rem; }
+          /* size badge */
+          .cart-item > :nth-child(4) { grid-column: 3; grid-row: 2; justify-self: end; }
+          /* qty */
+          .cart-item > :nth-child(5) { grid-column: 2; grid-row: 3; font-size: 0.85rem; color: #888; }
+          .cart-item > :nth-child(5)::before { content: 'Qty: '; font-weight: 400; }
+          /* subtotal */
+          .cart-item > :nth-child(6) { grid-column: 3; grid-row: 3; justify-self: end; }
+
+          .summary-panel { position: static; margin-top: 20px; }
+        }
       `}</style>
 
       <div className="container py-5">
@@ -407,19 +432,6 @@ const Checkout = () => {
                     </div>
                   )}
                 </div>
-
-                {/* Zip */}
-                <div className="col-12">
-                  <input
-                    type="text"
-                    className={`form-control form-control-lg ${errors.zip ? "is-invalid" : ""}`}
-                    placeholder="ZIP Code"
-                    {...register("zip", { required: "ZIP code is required" })}
-                  />
-                  {errors.zip && (
-                    <div className="invalid-feedback">{errors.zip.message}</div>
-                  )}
-                </div>
               </div>
 
               {/* Payment Method */}
@@ -431,21 +443,9 @@ const Checkout = () => {
                   <input
                     className="form-check-input"
                     type="radio"
-                    id="credit-card"
-                    value="credit_card"
-                    defaultChecked
-                    {...register("payment_method")}
-                  />
-                  <label className="form-check-label" htmlFor="credit-card">
-                    Credit Card
-                  </label>
-                </div>
-                <div className="form-check">
-                  <input
-                    className="form-check-input"
-                    type="radio"
                     id="cod"
                     value="cod"
+                    defaultChecked
                     {...register("payment_method")}
                   />
                   <label className="form-check-label" htmlFor="cod">

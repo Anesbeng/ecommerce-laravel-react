@@ -285,10 +285,25 @@ const Cardproduct = () => {
         @media (max-width: 768px) {
           .cart-table-header { display: none; }
           .cart-item {
-            grid-template-columns: 72px 1fr;
-            grid-template-rows: auto;
-            gap: 8px;
+            grid-template-columns: 72px 1fr auto;
+            grid-template-rows: auto auto auto auto;
+            row-gap: 10px;
           }
+
+          /* image spans the first 3 rows on the left */
+          .cart-item > :nth-child(1) { grid-column: 1; grid-row: 1 / 4; }
+          /* title, full width next to image */
+          .cart-item > :nth-child(2) { grid-column: 2 / 4; grid-row: 1; }
+          /* price */
+          .cart-item > :nth-child(3) { grid-column: 2; grid-row: 2; }
+          /* size badge */
+          .cart-item > :nth-child(4) { grid-column: 3; grid-row: 2; justify-self: end; }
+          /* qty control — its own full-width row so +/- always fit */
+          .cart-item > :nth-child(5) { grid-column: 2; grid-row: 3; }
+          /* subtotal */
+          .cart-item > :nth-child(6) { grid-column: 3; grid-row: 3; justify-self: end; }
+          /* remove button, bottom right */
+          .cart-item > :nth-child(7) { grid-column: 1 / 4; grid-row: 4; justify-self: end; }
         }
       `}</style>
 

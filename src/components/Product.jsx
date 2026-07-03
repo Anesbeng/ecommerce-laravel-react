@@ -98,7 +98,14 @@ const Product = () => {
 
         .gallery-thumbs {
           width: 72px;
+          height: 580px;
           flex-shrink: 0;
+        }
+
+        .gallery-thumbs .swiper,
+        .gallery-main .swiper {
+          width: 100%;
+          height: 100%;
         }
 
         .gallery-thumbs .swiper-slide {
@@ -123,6 +130,7 @@ const Product = () => {
 
         .gallery-main {
           flex: 1;
+          height: 580px;
           border-radius: 8px;
           overflow: hidden;
           background: #f0ede8;
@@ -131,7 +139,7 @@ const Product = () => {
 
         .gallery-main img {
           width: 100%;
-          height: 580px;
+          height: 100%;
           object-fit: cover;
           object-position: center;
           display: block;
@@ -481,8 +489,8 @@ const Product = () => {
         @media (max-width: 768px) {
           .product-info { padding-left: 0; margin-top: 32px; }
           .gallery-wrap { flex-direction: column-reverse; }
-          .gallery-thumbs { width: 100%; height: 72px; }
-          .gallery-main img { height: 360px; }
+          .gallery-thumbs { width: 100%; height: 64px; }
+          .gallery-main { height: 360px; }
         }
       `}</style>
 
@@ -508,13 +516,15 @@ const Product = () => {
                   <Swiper
                     onSwiper={setThumbsSwiper}
                     loop={false}
-                    direction="vertical"
+                    direction="horizontal"
                     spaceBetween={8}
-                    slidesPerView={5}
+                    slidesPerView={4}
                     freeMode={true}
                     watchSlidesProgress={true}
                     modules={[FreeMode, Navigation, Thumbs]}
-                    style={{ height: "580px" }}
+                    breakpoints={{
+                      769: { direction: "vertical", slidesPerView: 5 },
+                    }}
                   >
                     {(images.length > 0 ? images : [Img1]).map((img, i) => (
                       <SwiperSlide key={i}>
@@ -530,29 +540,19 @@ const Product = () => {
                     <div className="gallery-discount-badge">−{discount}%</div>
                   )}
                   <Swiper
-                    loop={true}
+                    loop={images.length > 1}
                     spaceBetween={0}
                     navigation={true}
                     thumbs={thumbsSwiper ? { swiper: thumbsSwiper } : undefined}
                     modules={[FreeMode, Navigation, Thumbs]}
                     style={{
-                      height: "580px",
                       "--swiper-navigation-color": "#fff",
                       "--swiper-navigation-size": "18px",
                     }}
                   >
                     {(images.length > 0 ? images : [Img1]).map((img, i) => (
                       <SwiperSlide key={i}>
-                        <img
-                          src={img}
-                          alt=""
-                          style={{
-                            width: "100%",
-                            height: "580px",
-                            objectFit: "cover",
-                            objectPosition: "center",
-                          }}
-                        />
+                        <img src={img} alt="" />
                       </SwiperSlide>
                     ))}
                   </Swiper>

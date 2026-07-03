@@ -2,14 +2,23 @@ import React, { useEffect, useState, useRef } from "react";
 import logo from "../../assets/images/logo.png";
 import { ApiUrl } from "./Https";
 import { CartContext } from "../context/cart.jsx";
+import { UserAuthContext } from "../context/UserAuth.jsx";
 import { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [categories, setCategories] = useState([]);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const { cartItems } = useContext(CartContext);
+  const { user, logout } = useContext(UserAuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    setMenuOpen(false);
+    navigate("/login");
+  };
 
   const cartCount = cartItems?.reduce((sum, item) => sum + item.qty, 0) || 0;
 
@@ -394,6 +403,56 @@ const Header = () => {
 
         .mobile-footer a.register:hover { background: #b8957a; }
 
+        .mobile-account {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 28px;
+          text-decoration: none;
+          border-bottom: 1px solid #f0ede8;
+        }
+
+        .mobile-account-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: #f5f2ee;
+          color: #1a1a1a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-family: 'Jost', sans-serif;
+          font-weight: 600;
+          font-size: 1rem;
+          flex-shrink: 0;
+        }
+
+        .mobile-account-name {
+          font-family: 'Jost', sans-serif;
+          font-size: 0.85rem;
+          font-weight: 500;
+          color: #1a1a1a;
+        }
+
+        .mobile-account-view {
+          font-family: 'Jost', sans-serif;
+          font-size: 0.7rem;
+          color: #999;
+          letter-spacing: 0.5px;
+        }
+
+        .mobile-footer a.logout {
+          border: 1.5px solid #d4cfc8;
+          color: #555;
+          background: transparent;
+          cursor: pointer;
+        }
+
+        .mobile-footer a.logout:hover {
+          background: #f5f2ee;
+          color: #1a1a1a;
+        }
+
         @media (max-width: 991px) {
           .header-nav { display: none; }
           .header-divider { display: none; }
@@ -438,9 +497,9 @@ const Header = () => {
             <div className="header-divider" />
             <div className="header-actions">
               <a
-                href="/user/dashboard"
+                href={user ? "/user/dashboard" : "/login"}
                 className="header-action-btn"
-                title="Account"
+                title={user ? "Account" : "Sign In"}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -538,13 +597,39 @@ const Header = () => {
           ))}
         </nav>
 
+        {user && (
+          <Link
+            to="/user/dashboard"
+            className="mobile-account"
+            onClick={() => setMenuOpen(false)}
+          >
+            <div className="mobile-account-avatar">
+              {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+            </div>
+            <div>
+              <div className="mobile-account-name">
+                {user.name || "My Account"}
+              </div>
+              <div className="mobile-account-view">View profile →</div>
+            </div>
+          </Link>
+        )}
+
         <div className="mobile-footer">
-          <a href="/Login" className="login">
-            Sign In
-          </a>
-          <a href="/Register" className="register">
-            Register
-          </a>
+          {user ? (
+            <a href="#" className="logout" onClick={handleLogout}>
+              Sign Out
+            </a>
+          ) : (
+            <>
+              <a href="/Login" className="login">
+                Sign In
+              </a>
+              <a href="/Register" className="register">
+                Register
+              </a>
+            </>
+          )}
         </div>
       </div>
     </>
