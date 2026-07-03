@@ -106,7 +106,7 @@ const EditModal = ({ user, onClose, onSaved }) => {
               value={form.role}
               onChange={handleChange}
             >
-              <option value="user">User</option>
+              <option value="customer">Customer</option>
               <option value="admin">Admin</option>
             </select>
           </div>
