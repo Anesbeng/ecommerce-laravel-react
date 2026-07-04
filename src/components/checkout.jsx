@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // ADDED: needed to redirect after a successful order
 import Layout from "./common/Layout";
 import { CartContext } from "./context/cart";
@@ -9,7 +9,25 @@ import { toast } from "react-toastify";
 const Checkout = () => {
   const { cartItems, finalTotal, clearCart } = useContext(CartContext);
   const [loading, setLoading] = useState(false); // FIX 1: prevent double submit
+  const [shippingInfo, setShippingInfo] = useState(null);
   const navigate = useNavigate(); // ADDED
+
+  // Fetch the real shipping settings the admin configured, so we
+  // display (and charge) the same rate the admin panel shows
+  useEffect(() => {
+    fetch(`${ApiUrl}/shipping`)
+      .then((res) => res.json())
+      .then((data) => setShippingInfo(data))
+      .catch((err) => console.log("Failed to load shipping settings:", err));
+  }, []);
+
+  const shippingCost = shippingInfo
+    ? shippingInfo.is_free
+      ? 0
+      : Number(shippingInfo.rate)
+    : 0;
+
+  const orderTotal = finalTotal() + shippingCost;
 
   const {
     register,
@@ -46,8 +64,8 @@ const Checkout = () => {
       status: "pending", // "not_paid"
       payment_status,
       subtotal: finalTotal(),
-      grand_total: finalTotal(),
-      shipping: 0,
+      grand_total: orderTotal,
+      shipping: shippingCost,
       discount: 0,
 
       // FIX 4: key must be "cart" (not "items"), fields must match Laravel
@@ -55,7 +73,8 @@ const Checkout = () => {
       cart: cartItems.map((item) => ({
         product_id: item.productId,
         name: item.title,
-        size: item.size.name, // "XL" — plain string
+        size: item.size.name, // "XL" — plain string, for display only
+        size_id: item.size.id, // needed server-side to reduce the right size's stock
         qty: item.qty,
         unit_price: Number(item.price),
         price: Number(item.price) * item.qty,
@@ -98,7 +117,7 @@ const Checkout = () => {
             mobile: data.mobile,
             address: data.address,
             city: data.city,
-            total: finalTotal(),
+            total: orderTotal,
           }),
         });
         fetch("https://hook.eu1.make.com/ygibcjr5y2l40hfnfeijv8ninef1pg26", {
@@ -110,7 +129,7 @@ const Checkout = () => {
             mobile: data.mobile,
             address: data.address,
             city: data.city,
-            total: finalTotal(),
+            total: orderTotal,
           }),
         });
         // ADDED: redirect to the confirmation page, carrying the order
@@ -134,7 +153,9 @@ const Checkout = () => {
             city: data.city,
             state: data.state,
             items: cartItems,
-            total: finalTotal(),
+            subtotal: finalTotal(),
+            shipping: shippingCost,
+            total: orderTotal,
           },
         });
         clearCart(); // clear the cart after successful order
@@ -514,13 +535,19 @@ const Checkout = () => {
                     </div>
                     <div className="summary-row">
                       <span>Shipping</span>
-                      <span style={{ color: "#22c55e", fontWeight: 500 }}>
-                        Free
-                      </span>
+                      {shippingCost === 0 ? (
+                        <span style={{ color: "#22c55e", fontWeight: 500 }}>
+                          Free
+                        </span>
+                      ) : (
+                        <span style={{ fontWeight: 500 }}>
+                          ${shippingCost.toFixed(2)}
+                        </span>
+                      )}
                     </div>
                     <div className="summary-row total">
                       <span>Total</span>
-                      <span>${finalTotal().toFixed(2)}</span>
+                      <span>${orderTotal.toFixed(2)}</span>
                     </div>
 
                     {/* FIX 10: button is inside the form so it submits properly */}

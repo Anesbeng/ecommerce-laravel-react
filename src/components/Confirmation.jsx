@@ -281,11 +281,15 @@ const Confirmation = () => {
               <div className="os-totals">
                 <div className="os-totals-row">
                   <span>Subtotal</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>${(order.subtotal ?? order.total).toFixed(2)}</span>
                 </div>
                 <div className="os-totals-row">
                   <span>Shipping</span>
-                  <span>Free</span>
+                  <span>
+                    {!order.shipping || order.shipping === 0
+                      ? "Free"
+                      : `$${order.shipping.toFixed(2)}`}
+                  </span>
                 </div>
                 <div className="os-totals-row os-grand">
                   <span>Grand Total</span>

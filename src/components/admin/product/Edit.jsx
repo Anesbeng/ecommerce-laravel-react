@@ -13,7 +13,8 @@ const Edit = () => {
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [sizes, setSizes] = useState([]);
-  const [selectedSizeIds, setSelectedSizeIds] = useState([]);
+  const [sizeQty, setSizeQty] = useState({}); // { [sizeId]: qtyString }
+  const [sizesError, setSizesError] = useState("");
   const [currentImages, setCurrentImages] = useState([]);
   const [removedImages, setRemovedImages] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
@@ -64,11 +65,16 @@ const Edit = () => {
           setValue("category_id", p.category_id);
           setValue("brand_id", p.brand_id);
           setValue("sku", p.sku);
-          setValue("qty", p.qty);
           setValue("status", String(p.status));
           setValue("barcode", p.barcode);
           setValue("is_featured", String(p.is_featured));
-          if (p.sizes) setSelectedSizeIds(p.sizes.map((s) => String(s.id)));
+          if (p.sizes) {
+            const map = {};
+            p.sizes.forEach((s) => {
+              map[String(s.id)] = String(s.pivot?.qty ?? 0);
+            });
+            setSizeQty(map);
+          }
           if (p.images?.length) setCurrentImages(p.images.map((i) => i.image));
           else if (p.image) setCurrentImages([p.image]);
         } else {
@@ -103,13 +109,30 @@ const Edit = () => {
   };
 
   const toggleSize = (sid) => {
-    const s = String(sid);
-    setSelectedSizeIds((p) =>
-      p.includes(s) ? p.filter((x) => x !== s) : [...p, s],
-    );
+    const key = String(sid);
+    setSizeQty((p) => {
+      const next = { ...p };
+      if (key in next) {
+        delete next[key];
+      } else {
+        next[key] = "0";
+      }
+      return next;
+    });
+  };
+
+  const updateSizeQty = (sid, value) => {
+    setSizeQty((p) => ({ ...p, [String(sid)]: value }));
   };
 
   const onSubmit = async (data) => {
+    const sizeEntries = Object.entries(sizeQty);
+    if (sizeEntries.length === 0) {
+      setSizesError("Select at least one size and set its stock quantity");
+      return;
+    }
+    setSizesError("");
+
     setDisable(true);
     const fd = new FormData();
     Object.entries(data).forEach(
@@ -117,7 +140,10 @@ const Edit = () => {
         v !== undefined &&
         fd.append(k === "discount_price" ? "compare_price" : k, v),
     );
-    selectedSizeIds.forEach((s) => fd.append("product_sizes[]", s));
+    sizeEntries.forEach(([sizeId, qty], i) => {
+      fd.append(`sizes[${i}][size_id]`, sizeId);
+      fd.append(`sizes[${i}][qty]`, qty || 0);
+    });
     newFiles.forEach((f) => fd.append("images[]", f));
     removedImages.forEach((n) => fd.append("removed_images[]", n));
     currentImages.forEach((n) => fd.append("kept_images[]", n));
@@ -269,17 +295,6 @@ const Edit = () => {
               )}
             </div>
             <div className="af-field">
-              <label className="af-label">Quantity</label>
-              <input
-                className={`af-input${errors.qty ? " error" : ""}`}
-                type="number"
-                {...register("qty", { required: "Quantity is required" })}
-              />
-              {errors.qty && (
-                <span className="af-error">{errors.qty.message}</span>
-              )}
-            </div>
-            <div className="af-field">
               <label className="af-label">Barcode</label>
               <input className="af-input" {...register("barcode")} />
             </div>
@@ -306,28 +321,73 @@ const Edit = () => {
             </select>
           </div>
 
-          <p className="af-section-title">Available Sizes</p>
-          <div className="af-sizes" style={{ marginBottom: 20 }}>
+          <p className="af-section-title">Available Sizes &amp; Stock</p>
+          <div
+            className="af-sizes"
+            style={{
+              marginBottom: 8,
+              flexDirection: "column",
+              alignItems: "stretch",
+              gap: 10,
+            }}
+          >
             {sizes.length === 0 ? (
               <span style={{ color: "#bbb", fontSize: "0.85rem" }}>
                 No sizes available
               </span>
             ) : (
-              sizes.map((s) => (
-                <label
-                  key={s.id}
-                  className={`af-size-chip${selectedSizeIds.includes(String(s.id)) ? " checked" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedSizeIds.includes(String(s.id))}
-                    onChange={() => toggleSize(s.id)}
-                  />
-                  {s.name}
-                </label>
-              ))
+              sizes.map((s) => {
+                const checked = String(s.id) in sizeQty;
+                return (
+                  <div
+                    key={s.id}
+                    className={`af-size-chip${checked ? " checked" : ""}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                    }}
+                  >
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        cursor: "pointer",
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleSize(s.id)}
+                      />
+                      {s.name}
+                    </label>
+                    {checked && (
+                      <input
+                        type="number"
+                        min="0"
+                        className="af-input"
+                        style={{ width: 90, padding: "6px 10px" }}
+                        placeholder="Qty"
+                        value={sizeQty[s.id]}
+                        onChange={(e) => updateSizeQty(s.id, e.target.value)}
+                      />
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
+          {sizesError && (
+            <span
+              className="af-error"
+              style={{ display: "block", marginBottom: 16 }}
+            >
+              {sizesError}
+            </span>
+          )}
 
           <p className="af-section-title">Product Images</p>
 

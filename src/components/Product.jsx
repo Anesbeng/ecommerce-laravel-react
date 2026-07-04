@@ -276,6 +276,15 @@ const Product = () => {
 
         .size-btn:hover { border-color: #1a1a1a; color: #1a1a1a; }
 
+        .size-btn.sold-out {
+          color: #ccc;
+          border-color: #eee;
+          text-decoration: line-through;
+          cursor: not-allowed;
+          background: #fafafa;
+        }
+        .size-btn.sold-out:hover { border-color: #eee; color: #ccc; }
+
         .size-btn.selected {
           background: #1a1a1a;
           border-color: #1a1a1a;
@@ -600,21 +609,44 @@ const Product = () => {
                     </div>
                     <div className="sizes-row">
                       {sizes?.length > 0 ? (
-                        sizes.map((size, i) => (
-                          <button
-                            key={i}
-                            className={`size-btn ${selectedSize?.id === size.id ? "selected" : ""}`}
-                            onClick={() => setSelectedSize(size)}
-                          >
-                            {size.name}
-                          </button>
-                        ))
+                        sizes.map((size, i) => {
+                          const stock = size.pivot?.qty ?? 0;
+                          const soldOut = stock <= 0;
+                          return (
+                            <button
+                              key={i}
+                              disabled={soldOut}
+                              className={`size-btn ${selectedSize?.id === size.id ? "selected" : ""} ${soldOut ? "sold-out" : ""}`}
+                              onClick={() => {
+                                if (soldOut) return;
+                                setSelectedSize(size);
+                                setQty(1);
+                              }}
+                              title={soldOut ? "Out of stock" : `${stock} left`}
+                            >
+                              {size.name}
+                            </button>
+                          );
+                        })
                       ) : (
                         <p style={{ fontSize: "0.8rem", color: "#bbb" }}>
                           No sizes available
                         </p>
                       )}
                     </div>
+                    {selectedSize && (
+                      <p
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#999",
+                          marginTop: 8,
+                        }}
+                      >
+                        {selectedSize.pivot?.qty > 0
+                          ? `${selectedSize.pivot.qty} in stock`
+                          : "Out of stock"}
+                      </p>
+                    )}
                   </div>
 
                   {/* Qty + CTA */}
@@ -632,13 +664,20 @@ const Product = () => {
                         type="number"
                         value={qty}
                         min={1}
-                        onChange={(e) =>
-                          setQty(Math.max(1, Number(e.target.value)))
-                        }
+                        max={selectedSize?.pivot?.qty || undefined}
+                        onChange={(e) => {
+                          const max = selectedSize?.pivot?.qty ?? Infinity;
+                          setQty(
+                            Math.min(max, Math.max(1, Number(e.target.value))),
+                          );
+                        }}
                       />
                       <button
                         className="qty-step"
-                        onClick={() => setQty(qty + 1)}
+                        onClick={() => {
+                          const max = selectedSize?.pivot?.qty ?? Infinity;
+                          setQty(Math.min(max, qty + 1));
+                        }}
                       >
                         +
                       </button>

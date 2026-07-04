@@ -149,11 +149,15 @@ const OrderCard = ({ order }) => {
           <div className="oh-totals">
             <div className="oh-totals-row">
               <span>Subtotal</span>
-              <span>${Number(order.grand_total).toFixed(2)}</span>
+              <span>${Number(order.subtotal).toFixed(2)}</span>
             </div>
             <div className="oh-totals-row">
               <span>Shipping</span>
-              <span>Free</span>
+              <span>
+                {!order.shipping || Number(order.shipping) === 0
+                  ? "Free"
+                  : `$${Number(order.shipping).toFixed(2)}`}
+              </span>
             </div>
             <div className="oh-totals-row oh-grand">
               <span>Grand Total</span>

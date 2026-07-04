@@ -12,7 +12,8 @@ const Create = () => {
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
   const [sizes, setSizes] = useState([]);
-  const [selectedSizeIds, setSelectedSizeIds] = useState([]);
+  const [sizeQty, setSizeQty] = useState({}); // { [sizeId]: qtyString }
+  const [sizesError, setSizesError] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const fileRef = useRef();
@@ -63,10 +64,20 @@ const Create = () => {
   };
 
   const toggleSize = (id) => {
-    const s = String(id);
-    setSelectedSizeIds((p) =>
-      p.includes(s) ? p.filter((x) => x !== s) : [...p, s],
-    );
+    const key = String(id);
+    setSizeQty((p) => {
+      const next = { ...p };
+      if (key in next) {
+        delete next[key];
+      } else {
+        next[key] = "0";
+      }
+      return next;
+    });
+  };
+
+  const updateSizeQty = (id, value) => {
+    setSizeQty((p) => ({ ...p, [String(id)]: value }));
   };
 
   const onSubmit = async (data) => {
@@ -77,6 +88,14 @@ const Create = () => {
       });
       return;
     }
+
+    const sizeEntries = Object.entries(sizeQty);
+    if (sizeEntries.length === 0) {
+      setSizesError("Select at least one size and set its stock quantity");
+      return;
+    }
+    setSizesError("");
+
     setDisable(true);
     const fd = new FormData();
     Object.entries(data).forEach(
@@ -84,7 +103,10 @@ const Create = () => {
         v !== undefined &&
         fd.append(k === "discount_price" ? "compare_price" : k, v),
     );
-    selectedSizeIds.forEach((s) => fd.append("product_sizes[]", s));
+    sizeEntries.forEach(([sizeId, qty], i) => {
+      fd.append(`sizes[${i}][size_id]`, sizeId);
+      fd.append(`sizes[${i}][qty]`, qty || 0);
+    });
     fd.append("image", selectedImages[0]);
     selectedImages.forEach((f) => fd.append("images[]", f));
 
@@ -249,18 +271,6 @@ const Create = () => {
               )}
             </div>
             <div className="af-field">
-              <label className="af-label">Quantity</label>
-              <input
-                className={`af-input${errors.qty ? " error" : ""}`}
-                type="number"
-                placeholder="0"
-                {...register("qty", { required: "Quantity is required" })}
-              />
-              {errors.qty && (
-                <span className="af-error">{errors.qty.message}</span>
-              )}
-            </div>
-            <div className="af-field">
               <label className="af-label">
                 Barcode{" "}
                 <span style={{ color: "#ccc", fontWeight: 400 }}>
@@ -298,29 +308,71 @@ const Create = () => {
           </div>
 
           {/* Sizes */}
-          <p className="af-section-title">Available Sizes</p>
-          <div className="af-sizes" style={{ marginBottom: 20 }}>
+          <p className="af-section-title">Available Sizes &amp; Stock</p>
+          <div
+            className="af-sizes"
+            style={{
+              marginBottom: 8,
+              flexDirection: "column",
+              alignItems: "stretch",
+              gap: 10,
+            }}
+          >
             {sizes.length === 0 ? (
               <span style={{ color: "#bbb", fontSize: "0.85rem" }}>
                 No sizes available
               </span>
             ) : (
-              sizes.map((s) => (
-                <label
-                  key={s.id}
-                  className={`af-size-chip${selectedSizeIds.includes(String(s.id)) ? " checked" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    value={s.id}
-                    checked={selectedSizeIds.includes(String(s.id))}
-                    onChange={() => toggleSize(s.id)}
-                  />
-                  {s.name}
-                </label>
-              ))
+              sizes.map((s) => {
+                const checked = String(s.id) in sizeQty;
+                return (
+                  <div
+                    key={s.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      width: "100%",
+                      border: "1px solid #e8e8ec",
+                      borderRadius: 8,
+                      padding: "4px 14px 4px 4px",
+                    }}
+                  >
+                    <label
+                      className={`af-size-chip${checked ? " checked" : ""}`}
+                      style={{ border: "none", flex: 1 }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleSize(s.id)}
+                      />
+                      {s.name}
+                    </label>
+                    {checked && (
+                      <input
+                        type="number"
+                        min="0"
+                        className="af-input"
+                        style={{ width: 90, padding: "6px 10px" }}
+                        placeholder="Qty"
+                        value={sizeQty[s.id]}
+                        onChange={(e) => updateSizeQty(s.id, e.target.value)}
+                      />
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
+          {sizesError && (
+            <span
+              className="af-error"
+              style={{ display: "block", marginBottom: 16 }}
+            >
+              {sizesError}
+            </span>
+          )}
 
           {/* Images */}
           <p className="af-section-title">Product Images</p>

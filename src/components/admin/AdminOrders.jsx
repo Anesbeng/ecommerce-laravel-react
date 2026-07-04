@@ -205,11 +205,15 @@ const OrderModal = ({ orderId, onClose, onStatusChange }) => {
             <div className="ao-totals">
               <div className="ao-totals-row">
                 <span>Subtotal</span>
-                <span>${Number(order.grand_total).toFixed(2)}</span>
+                <span>${Number(order.subtotal).toFixed(2)}</span>
               </div>
               <div className="ao-totals-row">
                 <span>Shipping</span>
-                <span>Free</span>
+                <span>
+                  {!order.shipping || Number(order.shipping) === 0
+                    ? "Free"
+                    : `$${Number(order.shipping).toFixed(2)}`}
+                </span>
               </div>
               <div className="ao-totals-row ao-grand">
                 <span>Grand Total</span>

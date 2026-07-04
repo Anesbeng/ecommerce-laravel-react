@@ -427,7 +427,7 @@ export const ProductsShow = () => {
                       <span className="at-name">{p.title}</span>
                     </td>
                     <td>${Number(p.price).toFixed(2)}</td>
-                    <td>{p.qty}</td>
+                    <td>{p.total_qty}</td>
                     <td style={{ color: "#aaa", fontSize: "0.8rem" }}>
                       {p.sku}
                     </td>
