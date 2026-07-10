@@ -42,7 +42,7 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
   const subtotal = () => {
-    return cartItems.reduce((item) => item.price * item.qty);
+    return cartItems.reduce((total, item) => total + item.price * item.qty, 0);
   };
   const finalTotal = () => {
     return cartItems.reduce((total, item) => total + item.price * item.qty, 0);

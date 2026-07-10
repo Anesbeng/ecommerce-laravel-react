@@ -107,6 +107,7 @@ const Checkout = () => {
 
       if (result.status === "200") {
         toast.success("Order placed successfully!");
+        clearCart(); // clear the cart right away — applies to both COD and online payment
         // Send notification to Make webhook
         fetch("https://hook.eu1.make.com/nst8c97bagcibghw2aqnu8u55hfov573", {
           method: "POST",
@@ -132,14 +133,44 @@ const Checkout = () => {
             total: orderTotal,
           }),
         });
+
+        // ADDED: real order id now comes back from the backend
+        const realOrderId = result.order_id;
+
+        if (data.payment_method === "online") {
+          // Ask the backend to open a Chargily checkout session for this
+          // exact order, then send the browser straight there.
+          try {
+            const payRes = await fetch(
+              `${ApiUrl}/payment/initiate/${realOrderId}`,
+              {
+                method: "POST",
+                headers: {
+                  Accept: "application/json",
+                  Authorization: `Bearer ${UserToken()}`,
+                },
+              },
+            );
+            const payData = await payRes.json();
+            if (payData.checkout_url) {
+              window.location.href = payData.checkout_url;
+              return; // stop here — browser is navigating away
+            } else {
+              toast.error("Could not start online payment. Please try again.");
+              return;
+            }
+          } catch (err) {
+            console.error("Payment initiation failed:", err);
+            toast.error("Could not start online payment. Please try again.");
+            return;
+          }
+        }
+
         // ADDED: redirect to the confirmation page, carrying the order
         // details along so it can be rendered there.
         navigate("/Confirmation", {
           state: {
-            // ADDED: the backend doesn't return an order id/date yet, so
-            // these are generated here just for display. Swap orderId for
-            // a real one once the API returns it in the response.
-            orderId: Date.now().toString().slice(-6),
+            orderId: realOrderId,
             orderDate: new Date().toLocaleDateString("en-GB", {
               day: "2-digit",
               month: "short",
@@ -158,7 +189,6 @@ const Checkout = () => {
             total: orderTotal,
           },
         });
-        clearCart(); // clear the cart after successful order
       } else {
         toast.error(result.message || "Failed to place order.");
       }
@@ -471,6 +501,18 @@ const Checkout = () => {
                   />
                   <label className="form-check-label" htmlFor="cod">
                     Cash on Delivery
+                  </label>
+                </div>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="radio"
+                    id="online"
+                    value="online"
+                    {...register("payment_method")}
+                  />
+                  <label className="form-check-label" htmlFor="online">
+                    Pay Online (Card)
                   </label>
                 </div>
               </div>

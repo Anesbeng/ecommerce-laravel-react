@@ -32,6 +32,8 @@ import ChangePassword from "./components/ChangePassword.jsx";
 import AdminUsers from "./components/admin/AdminUsers.jsx";
 import AdminShipping from "./components/admin/AdminShipping.jsx";
 import AdminChangePassword from "./components/admin/AdminChangePassword.jsx";
+import PaymentSuccess from "./components/PaymentSuccess.jsx";
+import PaymentFailed from "./components/PaymentFailed.jsx";
 
 function App() {
   return (
@@ -102,6 +104,22 @@ function App() {
             element={
               <UserRequireAuth>
                 <Confirmation />
+              </UserRequireAuth>
+            }
+          />
+          <Route
+            path="/payment-success"
+            element={
+              <UserRequireAuth>
+                <PaymentSuccess />
+              </UserRequireAuth>
+            }
+          />
+          <Route
+            path="/payment-failed"
+            element={
+              <UserRequireAuth>
+                <PaymentFailed />
               </UserRequireAuth>
             }
           />
