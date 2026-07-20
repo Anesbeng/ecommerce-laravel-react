@@ -34,6 +34,8 @@ import AdminShipping from "./components/admin/AdminShipping.jsx";
 import AdminChangePassword from "./components/admin/AdminChangePassword.jsx";
 import PaymentSuccess from "./components/PaymentSuccess.jsx";
 import PaymentFailed from "./components/PaymentFailed.jsx";
+import ForgotPassword from "./components/ForgotPassword.jsx";
+import ResetPassword from "./components/ResetPassword.jsx";
 
 function App() {
   return (
@@ -48,6 +50,8 @@ function App() {
           <Route path="/admin/Login" element={<Login />} />
           <Route path="/Register" element={<Register />} />
           <Route path="/login" element={<LoginUser />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/account/change-password"
             element={

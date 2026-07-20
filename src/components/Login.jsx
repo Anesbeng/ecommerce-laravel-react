@@ -321,6 +321,9 @@ const Login = () => {
           </button>
         </form>
 
+        <Link to="/forgot-password" className="auth-back-home">
+          Forgot your password?
+        </Link>
         <Link to="/" className="auth-back-home">
           ← Back to shopping
         </Link>
